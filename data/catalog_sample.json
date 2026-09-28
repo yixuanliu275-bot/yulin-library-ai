@@ -1,0 +1,109 @@
+{
+  "description": "榆林图书馆馆藏模拟数据样例（可被前端Demo读取，落地时替换为真实ILS数据）",
+  "books": [
+    {
+      "book_id": "YL-000101",
+      "title": "平凡的世界（全三册）",
+      "author": "路遥",
+      "category": "文学 / 当代小说",
+      "tags": ["路遥", "奋斗", "陕北", "现实题材"],
+      "call_number": "I247.5/L880",
+      "location": "二楼文学区 A-03 架",
+      "suitable_age": "14+",
+      "has_large_print": true,
+      "status": "在馆",
+      "intro": "路遥代表作，全景式展现改革开放初期陕北城乡社会变迁与普通人的奋斗。"
+    },
+    {
+      "book_id": "YL-000102",
+      "title": "人生",
+      "author": "路遥",
+      "category": "文学 / 中篇小说",
+      "tags": ["路遥", "抉择", "陕北青年", "理想"],
+      "call_number": "I247.5/L881",
+      "location": "二楼文学区 A-03 架",
+      "suitable_age": "14+",
+      "has_large_print": true,
+      "status": "在馆",
+      "intro": "高加林的进城与回乡之路，叩问理想与现实的永恒命题。"
+    },
+    {
+      "book_id": "YL-000103",
+      "title": "路遥传",
+      "author": "厚夫",
+      "category": "传记 / 文学",
+      "tags": ["路遥", "传记", "作家", "清涧"],
+      "call_number": "K825.6/H680",
+      "location": "三楼人物传记区 B-01 架",
+      "suitable_age": "12+",
+      "has_large_print": false,
+      "status": "在馆",
+      "intro": "全景记录路遥从清涧少年到人民作家的奋斗一生。"
+    },
+    {
+      "book_id": "YL-000201",
+      "title": "陕北民歌精选",
+      "author": "榆林市文化馆 编",
+      "category": "艺术 / 民间音乐",
+      "tags": ["信天游", "陕北民歌", "非遗", "兰花花"],
+      "call_number": "J642.2/Y88",
+      "location": "二楼地方文献区 C-05 架",
+      "suitable_age": "全年龄",
+      "has_large_print": false,
+      "status": "在馆",
+      "intro": "收录信天游、兰花花等陕北经典民歌的曲谱与唱词。"
+    },
+    {
+      "book_id": "YL-000202",
+      "title": "陕北剪纸艺术",
+      "author": "绥德县文化馆 编",
+      "category": "艺术 / 民间工艺",
+      "tags": ["绥德剪纸", "非遗", "民间工艺"],
+      "call_number": "J528.1/S88",
+      "location": "二楼地方文献区 C-06 架",
+      "suitable_age": "全年龄",
+      "has_large_print": false,
+      "status": "在馆",
+      "intro": "陕北绥德剪纸的图样、技法与文化寓意。"
+    },
+    {
+      "book_id": "YL-000301",
+      "title": "榆林市志",
+      "author": "榆林市地方志编纂委员会",
+      "category": "地方文献 / 方志",
+      "tags": ["地方志", "榆林", "文献", "历史"],
+      "call_number": "K294.13/Y880",
+      "location": "三楼地方文献阅览室（不外借）",
+      "suitable_age": "16+",
+      "has_large_print": false,
+      "status": "阅览",
+      "intro": "榆林地方志，系统记载榆林历史、地理、经济、文化。"
+    },
+    {
+      "book_id": "YL-000302",
+      "title": "转战陕北",
+      "author": "中共榆林市委党史研究室 编",
+      "category": "地方文献 / 红色文化",
+      "tags": ["红色文化", "转战陕北", "小河会议", "革命"],
+      "call_number": "D235.413/Y88",
+      "location": "三楼红色文献区 D-02 架",
+      "suitable_age": "12+",
+      "has_large_print": false,
+      "status": "在馆",
+      "intro": "中共中央转战陕北的历史记述，含小河会议等重要事件。"
+    },
+    {
+      "book_id": "YL-000303",
+      "title": "陕北说书艺术",
+      "author": "榆林市非遗保护中心 编",
+      "category": "地方文献 / 非遗",
+      "tags": ["陕北说书", "非遗", "曲艺", "三弦"],
+      "call_number": "J826.8/Y88",
+      "location": "二楼地方文献区 C-07 架",
+      "suitable_age": "全年龄",
+      "has_large_print": false,
+      "status": "在馆",
+      "intro": "陕北说书的历史、流派、曲目与传承人介绍。"
+    }
+  ]
+}

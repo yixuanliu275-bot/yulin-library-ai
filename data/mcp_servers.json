@@ -1,0 +1,62 @@
+{
+  "version": "1.0.0",
+  "description": "榆林图书馆 MCP 智慧数据服务架构（5大服务接口元定义）",
+  "gateway": {
+    "name": "MCP服务网关",
+    "responsibilities": ["统一鉴权", "路由分发", "数据脱敏", "访问日志"]
+  },
+  "servers": [
+    {
+      "id": "mcp.yulin.catalog",
+      "name": "馆藏资源服务",
+      "description": "馆藏书目检索、详情、借还状态、位置指引",
+      "tools": [
+        { "name": "search_books", "input": "关键词/分类/年龄段/大字号", "output": "馆藏列表" },
+        { "name": "get_book_detail", "input": "书目ID", "output": "书目详情" },
+        { "name": "check_availability", "input": "书目ID", "output": "在馆/借出/预约" },
+        { "name": "list_locations", "input": "分类", "output": "楼层/书架定位" }
+      ]
+    },
+    {
+      "id": "mcp.yulin.culture",
+      "name": "文化知识库服务",
+      "description": "本地文化知识检索与分级解读（路遥/非遗/民俗/红色/文献）",
+      "tools": [
+        { "name": "search_knowledge", "input": "关键词", "output": "文化条目(含来源)" },
+        { "name": "get_knowledge_detail", "input": "条目ID+人群级别", "output": "分级释义(趣味/通俗/深度)" },
+        { "name": "list_categories", "input": "—", "output": "六大领域分类树" }
+      ]
+    },
+    {
+      "id": "mcp.yulin.profile",
+      "name": "用户画像服务",
+      "description": "轻量化脱敏用户画像（无隐私风险）",
+      "privacy": "仅存年龄区间/偏好类别/最近主题，不存姓名/手机号/精确位置",
+      "tools": [
+        { "name": "get_profile", "input": "匿名用户ID", "output": "画像" },
+        { "name": "update_profile", "input": "脱敏行为事件", "output": "状态" },
+        { "name": "get_recommendations", "input": "画像ID", "output": "个性化推荐清单" }
+      ]
+    },
+    {
+      "id": "mcp.yulin.reading",
+      "name": "阅读计划服务",
+      "description": "个性化阅读计划、进度、打卡",
+      "tools": [
+        { "name": "create_plan", "input": "书目/主题/周期/人群", "output": "阅读计划" },
+        { "name": "get_plan", "input": "计划ID", "output": "计划进度" },
+        { "name": "check_in", "input": "计划ID/日期", "output": "打卡状态" }
+      ]
+    },
+    {
+      "id": "mcp.yulin.event",
+      "name": "活动事件服务",
+      "description": "活动检索、策划文案生成、报名登记",
+      "tools": [
+        { "name": "list_events", "input": "人群/类型", "output": "活动列表" },
+        { "name": "generate_plan_text", "input": "活动类型", "output": "策划文案" },
+        { "name": "register_event", "input": "活动ID/匿名用户ID", "output": "报名状态" }
+      ]
+    }
+  ]
+}

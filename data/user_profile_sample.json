@@ -1,0 +1,34 @@
+{
+  "description": "用户轻量化画像模拟数据（脱敏，无隐私风险）",
+  "privacy_note": "仅存年龄区间、偏好类别、最近阅读主题；不存姓名、手机号、精确位置、身份证号",
+  "profiles": [
+    {
+      "user_id": "ANON-2026-K01",
+      "age_group": "kid",
+      "preferences": ["陕北传说", "绘本", "腰鼓", "剪纸"],
+      "recent_topics": ["窑洞", "陕北说书"],
+      "reading_level": "启蒙"
+    },
+    {
+      "user_id": "ANON-2026-T01",
+      "age_group": "teen",
+      "preferences": ["路遥", "名著", "作文素材", "奋斗"],
+      "recent_topics": ["平凡的世界", "人生"],
+      "reading_level": "进阶"
+    },
+    {
+      "user_id": "ANON-2026-E01",
+      "age_group": "elder",
+      "preferences": ["路遥", "大字版", "陕北民歌", "红色故事"],
+      "recent_topics": ["平凡的世界", "转战陕北"],
+      "reading_level": "通俗"
+    },
+    {
+      "user_id": "ANON-2026-C01",
+      "age_group": "citizen",
+      "preferences": ["地方志", "榆林历史", "非遗"],
+      "recent_topics": ["镇北台", "统万城"],
+      "reading_level": "一般"
+    }
+  ]
+}

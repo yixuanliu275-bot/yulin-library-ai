@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>榆小图 · 榆林图书馆 AI 智慧服务创新系统</title>
+<style>
+  :root {
+    --paper: #faf6ee;
+    --paper-deep: #f3ecdd;
+    --ink: #2b2620;
+    --ink-soft: #5a5248;
+    --ink-faint: #8a8174;
+    --cinnabar: #b5442a;
+    --cinnabar-deep: #9a3520;
+    --bamboo: #5b6b4f;
+    --bamboo-deep: #46543d;
+    --gold: #c8a04a;
+    --gold-soft: #e8d9b0;
+    --line: #e4dac4;
+    --white: #fffdf8;
+    --shadow: 0 10px 40px rgba(75, 60, 35, 0.08);
+    --shadow-sm: 0 4px 18px rgba(75, 60, 35, 0.06);
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+    background: var(--paper); color: var(--ink); line-height: 1.75;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  .serif { font-family: "STKaiti", "KaiTi", "FangSong", "STSong", serif; }
+
+  /* ---------- 导航 ---------- */
+  .nav { position: fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center;
+    justify-content:space-between; padding:0 40px; height:64px; background:rgba(250,246,238,.85);
+    backdrop-filter:blur(12px); border-bottom:1px solid var(--line); transition:box-shadow .3s; }
+  .nav.scrolled { box-shadow:0 2px 20px rgba(75,60,35,.07); }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .brand-logo { width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,var(--cinnabar),var(--cinnabar-deep));
+    color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700;
+    box-shadow:0 3px 10px rgba(181,68,42,.3); }
+  .brand-name { font-size:17px; font-weight:700; letter-spacing:1px; }
+  .brand-name .serif { color:var(--cinnabar); }
+  .nav-links { display:flex; gap:24px; }
+  .nav-links a { color:var(--ink-soft); text-decoration:none; font-size:14px; transition:color .2s; position:relative; }
+  .nav-links a:hover { color:var(--cinnabar); }
+  .nav-links a::after { content:""; position:absolute; left:0; bottom:-4px; width:0; height:2px; background:var(--cinnabar); transition:width .25s; }
+  .nav-links a:hover::after { width:100%; }
+  .nav-cta { background:var(--cinnabar); color:#fff; padding:8px 20px; border-radius:30px; font-size:14px; text-decoration:none; font-weight:600; transition:.2s; }
+  .nav-cta:hover { background:var(--cinnabar-deep); transform:translateY(-1px); }
+
+  /* ---------- 容器 ---------- */
+  .container { max-width:1160px; margin:0 auto; padding:0 24px; }
+  section { padding:88px 0; position:relative; }
+  .section-head { text-align:center; margin-bottom:56px; }
+  .section-kicker { display:inline-block; font-size:13px; letter-spacing:3px; color:var(--cinnabar); margin-bottom:12px; font-weight:600; }
+  .section-kicker::before, .section-kicker::after { content:"—"; margin:0 8px; color:var(--gold); }
+  .section-title { font-size:34px; font-weight:700; letter-spacing:2px; }
+  .section-title .serif { color:var(--cinnabar); }
+  .section-desc { color:var(--ink-faint); margin-top:14px; max-width:680px; margin-left:auto; margin-right:auto; font-size:15px; }
+
+  /* ---------- Hero ---------- */
+  .hero { min-height:100vh; display:flex; align-items:center; position:relative; padding:120px 0 80px; overflow:hidden; }
+  .hero-bg { position:absolute; inset:0; pointer-events:none;
+    background: radial-gradient(circle at 85% 18%, rgba(200,160,74,.12), transparent 42%),
+      radial-gradient(circle at 12% 78%, rgba(91,107,79,.10), transparent 40%),
+      radial-gradient(circle at 50% 110%, rgba(181,68,42,.08), transparent 50%); }
+  .hero-mountain { position:absolute; bottom:0; left:0; right:0; height:200px; opacity:.35;
+    background: linear-gradient(165deg, transparent 55%, var(--paper-deep) 55%),
+      linear-gradient(200deg, transparent 50%, rgba(91,107,79,.25) 50%); filter:blur(.5px); }
+  .hero-inner { position:relative; z-index:2; display:grid; grid-template-columns:1.15fr .85fr; gap:50px; align-items:center; }
+  .hero-seal { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--gold); color:var(--cinnabar);
+    padding:6px 16px; border-radius:30px; font-size:13px; letter-spacing:1px; background:rgba(232,217,176,.25); margin-bottom:26px; }
+  .hero-title { font-size:52px; font-weight:800; line-height:1.25; letter-spacing:1px; }
+  .hero-title .accent { color:var(--cinnabar); }
+  .hero-sub { color:var(--ink-soft); margin:22px 0 34px; font-size:17px; max-width:540px; }
+  .hero-sub .serif { color:var(--cinnabar); font-size:19px; }
+  .hero-btns { display:flex; gap:16px; flex-wrap:wrap; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:13px 30px; border-radius:30px; font-size:15px;
+    font-weight:600; text-decoration:none; transition:.22s; cursor:pointer; border:none; font-family:inherit; }
+  .btn-primary { background:var(--cinnabar); color:#fff; box-shadow:0 6px 20px rgba(181,68,42,.3); }
+  .btn-primary:hover { background:var(--cinnabar-deep); transform:translateY(-2px); }
+  .btn-ghost { background:transparent; color:var(--ink); border:1.5px solid var(--ink); }
+  .btn-ghost:hover { background:var(--ink); color:var(--paper); }
+
+  .hero-card { background:var(--white); border:1px solid var(--line); border-radius:22px; padding:30px; box-shadow:var(--shadow); }
+  .hero-card .quote-mark { font-size:54px; color:var(--gold); line-height:1; height:40px; }
+  .hero-card .quote { font-size:20px; line-height:1.8; }
+  .hero-card .quote b { color:var(--cinnabar); }
+  .hero-card .from { margin-top:16px; color:var(--ink-faint); font-size:14px; text-align:right; }
+  .hero-card .from .serif { font-size:16px; color:var(--cinnabar); }
+  .hero-note { margin-top:20px; border-top:1px solid var(--line); padding-top:18px; font-size:13px; color:var(--ink-faint); }
+
+  /* ---------- 数据条 ---------- */
+  .stats { background:var(--ink); color:var(--paper); }
+  .stats-inner { display:grid; grid-template-columns:repeat(4,1fr); }
+  .stat { padding:36px 20px; text-align:center; border-right:1px solid rgba(250,246,238,.12); }
+  .stat:last-child { border-right:none; }
+  .stat-num { font-size:40px; font-weight:800; color:var(--gold); }
+  .stat-num .unit { font-size:18px; }
+  .stat-label { font-size:14px; color:rgba(250,246,238,.7); margin-top:6px; letter-spacing:1px; }
+
+  /* ---------- 卡片 ---------- */
+  .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:22px; }
+  .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:26px; }
+  .card { background:var(--white); border:1px solid var(--line); border-radius:var(--radius); padding:28px;
+    box-shadow:var(--shadow-sm); transition:transform .25s, box-shadow .25s; position:relative; overflow:hidden; }
+  .card:hover { transform:translateY(-5px); box-shadow:var(--shadow); }
+  .card-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:22px; margin-bottom:18px; }
+  .card h3 { font-size:18px; margin-bottom:10px; letter-spacing:.5px; }
+  .card p { color:var(--ink-soft); font-size:14px; }
+  .card .tag { display:inline-block; font-size:12px; padding:3px 10px; border-radius:20px; margin-bottom:14px; letter-spacing:1px; }
+  .c-red { background:rgba(181,68,42,.1); color:var(--cinnabar); }
+  .c-green { background:rgba(91,107,79,.12); color:var(--bamboo-deep); }
+  .c-gold { background:rgba(200,160,74,.14); color:#8a6b1f; }
+  .c-ink { background:rgba(43,38,32,.07); color:var(--ink); }
+  .module-num { font-size:13px; font-weight:700; color:var(--gold); letter-spacing:2px; }
+
+  /* ---------- 聊天区 ---------- */
+  .chat-grid { display:grid; grid-template-columns:1.35fr .85fr; gap:24px; align-items:start; }
+  .chat-wrap { background:var(--white); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); overflow:hidden; }
+  .chat-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 20px;
+    border-bottom:1px solid var(--line); background:var(--paper-deep); flex-wrap:wrap; }
+  .chat-head .left { display:flex; align-items:center; gap:12px; }
+  .chat-avatar { width:42px; height:42px; border-radius:12px; flex-shrink:0; background:linear-gradient(135deg,var(--cinnabar),var(--cinnabar-deep));
+    color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .chat-head .name { font-weight:700; font-size:15px; }
+  .chat-head .status { font-size:12px; color:var(--bamboo-deep); display:flex; align-items:center; gap:5px; }
+  .dot { width:7px; height:7px; border-radius:50%; background:#5ba36a; display:inline-block; }
+  .voice-toggle { display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-soft); cursor:pointer; user-select:none; }
+  .voice-toggle input { accent-color: var(--cinnabar); cursor:pointer; }
+
+  .persona-bar { display:flex; gap:8px; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--paper); flex-wrap:wrap; align-items:center; }
+  .persona-bar .lb { font-size:12.5px; color:var(--ink-faint); margin-right:4px; }
+  .p-chip { padding:6px 14px; border-radius:30px; border:1px solid var(--line); background:var(--white);
+    font-size:13px; cursor:pointer; color:var(--ink-soft); transition:.2s; font-family:inherit; }
+  .p-chip:hover { border-color:var(--cinnabar); color:var(--cinnabar); }
+  .p-chip.active { background:var(--cinnabar); color:#fff; border-color:var(--cinnabar); }
+
+  .chat-body { height:440px; overflow-y:auto; padding:22px; background:var(--paper); }
+  .msg { max-width:82%; margin-bottom:16px; display:flex; flex-direction:column; }
+  .msg.user { align-items:flex-end; margin-left:auto; }
+  .msg.bot { align-items:flex-start; }
+  .bubble { padding:12px 16px; border-radius:16px; font-size:14.5px; line-height:1.75; }
+  .msg.user .bubble { background:var(--cinnabar); color:#fff; border-bottom-right-radius:4px; }
+  .msg.bot .bubble { background:var(--white); border:1px solid var(--line); border-bottom-left-radius:4px; }
+  .msg.bot .bubble b { color:var(--cinnabar); }
+  .bubble.lg { font-size:19px; line-height:1.9; font-weight:500; }
+  .bubble.kid-style { background:#fff8ea; border-color:var(--gold-soft); }
+  .voice-btn { display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:6px 14px; border-radius:20px;
+    background:rgba(181,68,42,.08); color:var(--cinnabar); font-size:13px; cursor:pointer; border:none; font-family:inherit; transition:.2s; }
+  .voice-btn:hover { background:rgba(181,68,42,.16); }
+  .typing { display:flex; gap:5px; padding:6px 2px; }
+  .typing span { width:8px; height:8px; border-radius:50%; background:var(--ink-faint); animation:blink 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay:.2s; } .typing span:nth-child(3) { animation-delay:.4s; }
+  @keyframes blink { 0%,80%,100% { opacity:.2; } 40% { opacity:1; } }
+
+  .chat-input { display:flex; gap:12px; padding:16px 20px; border-top:1px solid var(--line); background:var(--paper-deep); }
+  .chat-input input { flex:1; padding:12px 18px; border:1px solid var(--line); border-radius:30px; font-size:14px;
+    outline:none; background:var(--white); font-family:inherit; }
+  .chat-input input:focus { border-color:var(--cinnabar); }
+  .chat-send { background:var(--cinnabar); color:#fff; border:none; padding:0 26px; border-radius:30px; font-size:14px;
+    font-weight:600; cursor:pointer; transition:.2s; font-family:inherit; }
+  .chat-send:hover { background:var(--cinnabar-deep); }
+
+  .quick-chips { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:22px; }
+  .chip { padding:8px 18px; border-radius:30px; border:1px solid var(--line); background:var(--white); font-size:13px;
+    cursor:pointer; color:var(--ink-soft); transition:.2s; font-family:inherit; }
+  .chip:hover { border-color:var(--cinnabar); color:var(--cinnabar); background:rgba(181,68,42,.05); }
+
+  /* 图书卡片（聊天气泡内） */
+  .book-card { border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-top:12px; background:var(--paper-deep); }
+  .book-card + .book-card { margin-top:10px; }
+  .bc-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .bc-tag { font-size:11px; color:var(--ink-faint); background:var(--white); padding:2px 9px; border-radius:12px; }
+  .bc-status { font-size:11.5px; font-weight:600; color:var(--cinnabar); }
+  .bc-status.ok { color:var(--bamboo-deep); }
+  .bc-title { font-weight:700; font-size:15px; }
+  .bc-author { font-size:13px; color:var(--ink-soft); margin:2px 0; }
+  .bc-meta { font-size:12px; color:var(--ink-faint); }
+  .bc-tags { font-size:12px; color:var(--bamboo-deep); margin-top:4px; }
+
+  /* ---------- 诊断面板 ---------- */
+  .diag { background:var(--ink); border-radius:20px; padding:22px; color:var(--paper); position:sticky; top:84px; box-shadow:var(--shadow); }
+  .diag-title { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; letter-spacing:1px; margin-bottom:4px; }
+  .diag-title .live { width:8px; height:8px; border-radius:50%; background:#5ba36a; box-shadow:0 0 0 4px rgba(91,163,106,.2); animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+  .diag-sub { font-size:11.5px; color:rgba(250,246,238,.5); margin-bottom:18px; letter-spacing:1px; }
+  .step { display:flex; gap:12px; padding:12px 0; border-top:1px solid rgba(250,246,238,.08); opacity:.35; transition:opacity .4s; }
+  .step.on { opacity:1; }
+  .step-num { width:24px; height:24px; border-radius:50%; background:rgba(250,246,238,.1); color:var(--gold);
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+  .step-body { flex:1; }
+  .step-name { font-size:12px; color:rgba(250,246,238,.55); margin-bottom:3px; }
+  .step-val { font-size:14px; font-weight:600; color:var(--gold-soft); line-height:1.5; }
+  .step-val .mono { font-family:"Consolas","SF Mono","Menlo",monospace; color:var(--gold); font-size:13px; }
+
+  /* ---------- 阅读计划生成器 ---------- */
+  .plan-themes { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:30px; }
+  .plan-panel { background:var(--white); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:28px; max-width:820px; margin:0 auto; }
+  .plan-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+  .plan-head h3 { font-size:20px; }
+  .plan-head .desc { font-size:13px; color:var(--ink-faint); margin-top:4px; }
+  .progress-wrap { width:160px; }
+  .progress-bar { height:8px; background:var(--paper-deep); border-radius:10px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--cinnabar),var(--gold)); width:0; transition:width .4s; border-radius:10px; }
+  .progress-label { font-size:12px; color:var(--ink-faint); text-align:right; margin-top:4px; }
+  .week-block { margin-bottom:18px; }
+  .week-title { font-weight:700; font-size:15px; color:var(--cinnabar); margin-bottom:8px; }
+  .plan-item { display:flex; align-items:flex-start; gap:10px; padding:9px 12px; background:var(--paper-deep); border-radius:10px; margin-bottom:6px; cursor:pointer; }
+  .plan-item input { margin-top:4px; accent-color:var(--cinnabar); cursor:pointer; }
+  .plan-item span { font-size:14px; color:var(--ink-soft); }
+  .plan-item.done span { text-decoration:line-through; color:var(--ink-faint); }
+
+  /* ---------- 文化科普专栏 ---------- */
+  .culture-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .culture-card { background:var(--white); border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:var(--shadow-sm); transition:.25s; min-height:190px; display:flex; flex-direction:column; }
+  .culture-card:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
+  .culture-card .cc-tag { font-size:11.5px; letter-spacing:1px; padding:3px 10px; border-radius:20px; width:fit-content; margin-bottom:14px; }
+  .culture-card .cc-title { font-weight:700; font-size:16px; margin-bottom:8px; }
+  .culture-card .cc-body { font-size:13.5px; color:var(--ink-soft); line-height:1.8; flex:1; }
+  .culture-card .cc-from { font-size:12px; color:var(--ink-faint); margin-top:12px; text-align:right; }
+  .culture-refresh { text-align:center; margin-top:26px; }
+
+  /* ---------- 技能库 ---------- */
+  .skill-group { border-top:3px solid var(--cinnabar); }
+  .skill-group.g2 { border-top-color:var(--bamboo); }
+  .skill-group.g3 { border-top-color:var(--gold); }
+  .skill-group .group-head { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+  .skill-group .group-head h3 { font-size:20px; }
+  .skill-group .group-head .pill { font-size:12px; padding:3px 12px; border-radius:20px; color:#fff; }
+  .pill.p1 { background:var(--cinnabar); } .pill.p2 { background:var(--bamboo); } .pill.p3 { background:var(--gold); }
+  .skill-list { display:flex; flex-direction:column; gap:12px; }
+  .skill-item { display:flex; gap:14px; align-items:flex-start; padding:14px 16px; background:var(--paper-deep); border-radius:12px; }
+  .skill-item .dot2 { width:9px; height:9px; border-radius:50%; margin-top:8px; flex-shrink:0; }
+  .skill-item h4 { font-size:15px; margin-bottom:3px; }
+  .skill-item p { font-size:13px; color:var(--ink-faint); }
+  .skill-item .sid { margin-left:auto; font-family:"Consolas",monospace; font-size:11px; color:var(--ink-faint); align-self:center; }
+
+  /* ---------- 架构图 ---------- */
+  .arch { display:flex; flex-direction:column; gap:14px; align-items:center; }
+  .arch-layer { width:100%; max-width:860px; border-radius:16px; padding:20px 24px; background:var(--white);
+    border:1px solid var(--line); text-align:center; box-shadow:var(--shadow-sm); transition:.3s; cursor:default; }
+  .arch-layer:hover { border-color:var(--gold); }
+  .arch-layer .layer-title { font-weight:700; letter-spacing:1px; margin-bottom:12px; }
+  .arch-layer .layer-sub { font-size:12.5px; color:var(--ink-faint); margin-bottom:14px; }
+  .arch-boxes { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .arch-box { padding:10px 16px; border-radius:10px; font-size:13.5px; font-weight:600; border:1px solid; letter-spacing:.5px; }
+  .arch-arrow { font-size:22px; color:var(--gold); }
+  .arch-users { border-color:var(--gold); background:rgba(200,160,74,.1); color:#7a5f1c; }
+  .arch-agent { border-color:var(--cinnabar); background:rgba(181,68,42,.08); color:var(--cinnabar-deep); }
+  .arch-skill { border-color:var(--bamboo); background:rgba(91,107,79,.1); color:var(--bamboo-deep); }
+  .arch-mcp { border-color:var(--ink); background:rgba(43,38,32,.06); color:var(--ink); }
+
+  /* ---------- 落地价值 ---------- */
+  .value-row { display:grid; grid-template-columns:repeat(2,1fr); gap:26px; }
+
+  /* ---------- Footer ---------- */
+  footer { background:var(--ink); color:rgba(250,246,238,.7); padding:50px 0; text-align:center; }
+  footer .logo-line { font-size:20px; color:var(--paper); margin-bottom:10px; letter-spacing:2px; }
+  footer .logo-line .serif { color:var(--gold); }
+  footer .slogan { font-size:13px; letter-spacing:3px; color:rgba(250,246,238,.5); }
+  footer .line { width:60px; height:1px; background:var(--gold); margin:20px auto; }
+
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.on { opacity:1; transform:none; }
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width: 960px) {
+    .hero-inner { grid-template-columns:1fr; }
+    .hero-title { font-size:38px; }
+    .chat-grid { grid-template-columns:1fr; }
+    .diag { position:static; }
+    .culture-grid, .grid-4 { grid-template-columns:1fr 1fr; }
+    .grid-3 { grid-template-columns:1fr; }
+    .value-row { grid-template-columns:1fr; }
+    .stats-inner { grid-template-columns:1fr 1fr; }
+    .stat:nth-child(2) { border-right:none; }
+    .nav-links { display:none; }
+  }
+  @media (max-width: 560px) {
+    .grid-2, .culture-grid, .grid-4 { grid-template-columns:1fr; }
+    .hero-title { font-size:32px; }
+    section { padding:60px 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 导航 -->
+<nav class="nav" id="nav">
+  <div class="brand">
+    <div class="brand-logo">榆</div>
+    <div class="brand-name"><span class="serif">榆小图</span> · 榆林图书馆 AI 智慧服务</div>
+  </div>
+  <div class="nav-links">
+    <a href="#intro">系统介绍</a>
+    <a href="#modules">功能模块</a>
+    <a href="#chat">智能体演示</a>
+    <a href="#plan">阅读计划</a>
+    <a href="#culture">文化专栏</a>
+    <a href="#skills">技能库</a>
+    <a href="#arch">技术架构</a>
+  </div>
+  <a href="#chat" class="nav-cta">立即体验</a>
+</nav>
+
+<!-- Hero -->
+<header class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-mountain"></div>
+  <div class="container hero-inner">
+    <div class="reveal on">
+      <div class="hero-seal">◈ 国家级历史文化名城 · 榆林 · 专属文化服务智能体</div>
+      <h1 class="hero-title">让每一本书<br>都遇见<span class="accent">懂它的人</span></h1>
+      <p class="hero-sub">
+        以路遥文学、陕北非遗、红色文化为灵魂，<br>
+        以 AI 智能体 <span class="serif">「榆小图」</span> 为入口 ——<br>
+        让陕北文化被每一个年龄段的人读懂。
+      </p>
+      <div class="hero-btns">
+        <a href="#chat" class="btn btn-primary">与榆小图对话 →</a>
+        <a href="#intro" class="btn btn-ghost">了解系统</a>
+      </div>
+    </div>
+    <div class="hero-card reveal on">
+      <div class="quote-mark">"</div>
+      <p class="quote">像<b>牛</b>一样劳动，<br>像<b>土地</b>一样奉献。</p>
+      <p class="from">—— <span class="serif">路遥</span> · 榆林清涧人</p>
+      <div class="hero-note">「榆小图」正在把馆藏里的<span style="color:var(--cinnabar)">平凡世界</span>、<span style="color:var(--bamboo-deep)">陕北非遗</span>、<span style="color:var(--gold)">红色记忆</span>，讲给每一位读者听。<br><span style="font-size:12px;color:var(--ink-faint)">本页为纯前端规则引擎演示，不接大模型、不联网、零计费。</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- 数据条 -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num">6<span class="unit">大</span></div><div class="stat-label">本地文化知识领域</div></div>
+    <div class="stat"><div class="stat-num">16<span class="unit">项</span></div><div class="stat-label">分层智能技能</div></div>
+    <div class="stat"><div class="stat-num">3<span class="unit">类</span></div><div class="stat-label">人群差异化覆盖</div></div>
+    <div class="stat"><div class="stat-num">5<span class="unit">个</span></div><div class="stat-label">MCP 数据服务</div></div>
+  </div>
+</div>
+
+<!-- 系统介绍 -->
+<section id="intro">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">系统介绍</div>
+      <h2 class="section-title">一座<span class="serif">会说话的图书馆</span></h2>
+      <p class="section-desc">不做"大而全的智慧中台"，做一个"小而精、专而暖"的文化服务智能体 —— 懂榆林、懂路遥、懂非遗，也懂老人和孩子。</p>
+    </div>
+    <div class="grid-4">
+      <div class="card reveal"><div class="card-icon c-red">🧭</div><span class="tag c-red">模块一</span><h3>专属 AI 智能体</h3><p>知识库硬性限定榆林馆藏、路遥、非遗、红色、地方文献，回答专属不通用。</p></div>
+      <div class="card reveal"><div class="card-icon c-green">🧩</div><span class="tag c-green">模块二</span><h3>分层 Skills 技能库</h3><p>少儿 / 青少年 / 中老年三大技能组，能力组件化、可复用、按需自动触发。</p></div>
+      <div class="card reveal"><div class="card-icon c-gold">🔗</div><span class="tag c-gold">模块三</span><h3>MCP 智慧数据服务</h3><p>馆藏、文化、画像、阅读、活动五大标准服务，AI 与图书馆数据的统一桥梁。</p></div>
+      <div class="card reveal"><div class="card-icon c-ink">💡</div><span class="tag c-ink">模块四</span><h3>智慧便民创新服务</h3><p>陪伴阅读、文化科普、活动策划、无障碍服务，把图书馆升级为文化陪伴者。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 功能模块 -->
+<section id="modules" style="background:var(--paper-deep);">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">核心能力</div>
+      <h2 class="section-title">四大<span class="serif">便民创新服务</span></h2>
+      <p class="section-desc">在"借还书"之外，让 AI 真正走进读者的阅读与文化生活。</p>
+    </div>
+    <div class="grid-2">
+      <div class="card reveal"><div class="module-num">01 / 陪伴阅读伙伴</div><h3 style="margin:8px 0 12px;">AI 图书馆陪伴阅读</h3><p>读前 3 分钟导读、读中随时答疑、读后开放讨论，从"借一本书"到"陪读一本书"。</p></div>
+      <div class="card reveal"><div class="module-num">02 / 文化科普专栏</div><h3 style="margin:8px 0 12px;">榆林本地文化科普</h3><p>每日一非遗、路遥金句台历、陕北民俗问答、红色记忆小课堂，让非遗"开口说话"。</p></div>
+      <div class="card reveal"><div class="module-num">03 / 活动策划助手</div><h3 style="margin:8px 0 12px;">读书会·展览·研学文案</h3><p>输入主题一键生成活动主题、招募文案、环节设计与讨论题，做馆员的 AI 策划助手。</p></div>
+      <div class="card reveal"><div class="module-num">04 / 无障碍服务</div><h3 style="margin:8px 0 12px;">特殊人群智能适配</h3><p>大字版显示、语音播报、简化交互、方言支持，让老人孩子都能用，跨越数字鸿沟。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 智能体交互演示 -->
+<section id="chat">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">交互演示</div>
+      <h2 class="section-title">与<span class="serif">「榆小图」</span>对话</h2>
+      <p class="section-desc">右侧「思维过程」实时展示 Agent 四步推理链路；切换人群模式，看同一问题如何千人千面。<br>（纯前端规则引擎模拟，不接大模型 · 不联网 · 零计费）</p>
+    </div>
+
+    <div class="chat-grid">
+      <!-- 聊天 -->
+      <div class="chat-wrap reveal">
+        <div class="chat-head">
+          <div class="left">
+            <div class="chat-avatar">榆</div>
+            <div>
+              <div class="name">榆小图</div>
+              <div class="status"><span class="dot"></span> 在线 · 榆林图书馆文化服务智能体</div>
+            </div>
+          </div>
+          <label class="voice-toggle"><input type="checkbox" id="voiceToggle" onchange="toggleVoice()"> 🔊 语音播报（老年模式）</label>
+        </div>
+
+        <div class="persona-bar">
+          <span class="lb">服务人群：</span>
+          <button class="p-chip active" data-p="auto" onclick="setPersona('auto')">✨ 智能识别</button>
+          <button class="p-chip" data-p="kid" onclick="setPersona('kid')">🧒 少儿</button>
+          <button class="p-chip" data-p="teen" onclick="setPersona('teen')">📚 青少年</button>
+          <button class="p-chip" data-p="elder" onclick="setPersona('elder')">👵 中老年</button>
+          <button class="p-chip" data-p="citizen" onclick="setPersona('citizen')">🏙️ 普通市民</button>
+        </div>
+
+        <div class="chat-body" id="chatBody"></div>
+        <div class="chat-input">
+          <input id="chatInput" type="text" placeholder="问我：推荐一本书 / 讲讲路遥 / 什么是陕北说书…" />
+          <button class="chat-send" onclick="send()">发送</button>
+        </div>
+      </div>
+
+      <!-- 诊断面板 -->
+      <div class="diag reveal">
+        <div class="diag-title"><span class="live"></span> AI 思维过程 · 实时</div>
+        <div class="diag-sub">AGENT PIPELINE · 意图 → 人群 → 技能 → 数据</div>
+        <div class="step" id="step1">
+          <div class="step-num">1</div>
+          <div class="step-body"><div class="step-name">① 意图识别</div><div class="step-val" id="val1">等待输入…</div></div>
+        </div>
+        <div class="step" id="step2">
+          <div class="step-num">2</div>
+          <div class="step-body"><div class="step-name">② 人群分层判定</div><div class="step-val" id="val2">等待输入…</div></div>
+        </div>
+        <div class="step" id="step3">
+          <div class="step-num">3</div>
+          <div class="step-body"><div class="step-name">③ 技能调度</div><div class="step-val" id="val3">等待输入…</div></div>
+        </div>
+        <div class="step" id="step4">
+          <div class="step-num">4</div>
+          <div class="step-body"><div class="step-name">④ MCP 数据调用</div><div class="step-val" id="val4">等待输入…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-chips reveal">
+      <button class="chip" onclick="ask('给我推荐一本书')">📚 推荐一本书</button>
+      <button class="chip" onclick="ask('讲讲路遥和《平凡的世界》')">✍️ 讲讲路遥</button>
+      <button class="chip" onclick="ask('什么是陕北说书？')">🎶 什么是陕北说书</button>
+      <button class="chip" onclick="ask('我是老人，想办借书证')">👵 老人办证</button>
+      <button class="chip" onclick="ask('帮我策划一场路遥读书会')">📋 策划读书会</button>
+      <button class="chip" onclick="ask('给小朋友讲个陕北故事')">🧒 讲个陕北故事</button>
+      <button class="chip" onclick="ask('帮我制定30天阅读计划')">🗓️ 阅读计划</button>
+    </div>
+  </div>
+</section>
+
+<!-- 阅读计划生成器 -->
+<section id="plan" style="background:var(--paper-deep);">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">阅读计划定制</div>
+      <h2 class="section-title">专属<span class="serif">阅读计划生成器</span></h2>
+      <p class="section-desc">选择一个主题，一键生成分层阅读计划，进度可勾选、自动保存（存于本地浏览器，无网络）。</p>
+    </div>
+    <div class="plan-themes reveal">
+      <button class="chip" onclick="genPlan('luyao')">✍️ 路遥文学专题</button>
+      <button class="chip" onclick="genPlan('ich')">🏮 陕北非遗文化</button>
+      <button class="chip" onclick="genPlan('red')">⭐ 红色记忆专题</button>
+      <button class="chip" onclick="genPlan('family')">🧒 亲子共读计划</button>
+    </div>
+    <div class="plan-panel reveal" id="planPanel">
+      <div class="plan-head">
+        <div><h3 id="planTitle">路遥文学专题 · 30 天阅读计划</h3><div class="desc" id="planDesc">读懂"平凡世界"里的奋斗，从清涧少年到人民作家。</div></div>
+        <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="planProgress"></div></div><div class="progress-label" id="planPct">已完成 0%</div></div>
+      </div>
+      <div id="planBody"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 文化科普专栏 -->
+<section id="culture">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">本地文化科普</div>
+      <h2 class="section-title">榆林文化 · <span class="serif">AI 科普专栏</span></h2>
+      <p class="section-desc">每日一非遗 · 路遥金句台历 · 红色记忆 · 陕北民俗，让地方文化"开口说话"。</p>
+    </div>
+    <div class="culture-grid" id="cultureGrid"></div>
+    <div class="culture-refresh reveal"><button class="btn btn-ghost" onclick="renderCulture(true)">🔄 换一批</button></div>
+  </div>
+</section>
+
+<!-- 技能库 -->
+<section id="skills" style="background:var(--paper-deep);">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">分层技能库</div>
+      <h2 class="section-title">三大人群 · <span class="serif">分层 Skills</span></h2>
+      <p class="section-desc">每个技能都是标准化、可复用、可扩展的能力组件，由智能体按"意图 + 人群"自动触发。</p>
+    </div>
+    <div class="grid-3">
+      <div class="card skill-group reveal">
+        <div class="group-head"><h3>少儿 / 低龄读者</h3><span class="pill p1">KID</span></div>
+        <div class="skill-list">
+          <div class="skill-item"><span class="dot2" style="background:var(--cinnabar)"></span><div><h4>趣味文化科普</h4><p>用拟人化故事讲清非遗、民俗</p></div><span class="sid">S-KID-01</span></div>
+          <div class="skill-item"><span class="dot2" style="background:var(--cinnabar)"></span><div><h4>故事改编</h4><p>陕北传说、路遥少年故事童趣版</p></div><span class="sid">S-KID-02</span></div>
+          <div class="skill-item"><span class="dot2" style="background:var(--cinnabar)"></span><div><h4>绘本文案</h4><p>生成陕北主题绘本分镜文案</p></div><span class="sid">S-KID-03</span></div>
+          <div class="skill-item"><span class="dot2" style="background:var(--cinnabar)"></span><div><h4>简单诗词解读</h4><p>大白话 + 画面感讲诗词民谣</p></div><span class="sid">S-KID-04</span></div>
+        </div>
+      </div>
+      <div class="card skill-group g2 reveal">
+        <div class="group-head"><h3>青少年读者</h3><span class="pill p2">TEEN</span></div>
+        <div class="skill-list">
+          <div class="skill-item"><span class="dot2" style="background:var(--bamboo)"></span><div><h4>阅读导读</h4><p>导读 + 时代背景 + 阅读地图</p></div><span class="sid">S-TEEN-01</span></div>
+          <div class="skill-item"><span class="dot2" style="background:var(--bamboo)"></span><div><h4>名著拆解</h4><p>人物谱 + 情节线 + 主题三张图</p></div><span class="sid">S-TEEN-02</span></div>
+          <div class="skill-item"><span class="dot2" style="background:var(--bamboo)"></span><div><h4>路遥作品深度解析</h4><p>《人生》《平凡的世界》深度解读</p></div><span class="sid">S-TEEN-03</span></div>
+          <div class="skill-item"><span class="dot2" style="background:var(--bamboo)"></span><div><h4>作文素材生成</h4><p>从路遥、陕北文化提炼写作素材</p></div><span class="sid">S-TEEN-04</span></div>
+        </div>
+      </div>
+      <div class="card skill-group g3 reveal">
+        <div class="group-head"><h3>中老年读者</h3><span class="pill p3">ELDER</span></div>
+        <div class="skill-list">
+          <div class="skill-item"><span class="dot2" style="background:var(--gold)"></span><div><h4>极简咨询</h4><p>最少字、最大字、清晰动作说明</p></div><span class="sid">S-ELD-01</span></div>
+          <div class="skill-item"><span class="dot2" style="background:var(--gold)"></span><div><h4>大字版解读</h4><p>关键内容放大字号、加粗分步</p></div><span class="sid">S-ELD-02</span></div>
+          <div class="skill-item"><span class="dot2" style="background:var(--gold)"></span><div><h4>通俗文化讲解</h4><p>大白话 + 老辈记忆讲非遗、红色</p></div><span class="sid">S-ELD-03</span></div>
+          <div class="skill-item"><span class="dot2" style="background:var(--gold)"></span><div><h4>老年活动推荐</h4><p>民歌会、戏曲、健步研学推荐</p></div><span class="sid">S-ELD-04</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card reveal" style="margin-top:24px; text-align:center;">
+      <div style="font-size:14px; color:var(--ink-soft);">➕ 另有 <b>跨人群通用技能</b>：智能荐书 · 阅读计划定制 · 活动策划文案 · 无障碍智能适配（共 16 项技能）</div>
+    </div>
+  </div>
+</section>
+
+<!-- 架构图 -->
+<section id="arch">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">技术架构</div>
+      <h2 class="section-title">三层解耦 · <span class="serif">MCP 数据血脉</span></h2>
+      <p class="section-desc">Agent（大脑）— Skills（能力）— MCP（数据），职责清晰、边界明确、可替换可扩展。</p>
+    </div>
+    <div class="arch reveal">
+      <div class="arch-layer"><div class="layer-title" style="color:var(--gold)">用户接入端（四端）</div><div class="arch-boxes"><span class="arch-box arch-users">读者小程序</span><span class="arch-box arch-users">触屏一体机</span><span class="arch-box arch-users">微信公众号</span><span class="arch-box arch-users">馆员后台</span></div></div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer"><div class="layer-title" style="color:var(--cinnabar)">第一层 · AI 智能体层「榆小图」</div><div class="layer-sub">意图识别 · 人群分层判定 · 任务规划调度 · 记忆管理</div><div class="arch-boxes"><span class="arch-box arch-agent">意图识别</span><span class="arch-box arch-agent">人群分层</span><span class="arch-box arch-agent">技能调度</span><span class="arch-box arch-agent">记忆管理</span></div></div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer"><div class="layer-title" style="color:var(--bamboo-deep)">第二层 · 分层 Skills 技能库</div><div class="layer-sub">少儿技能组 · 青少年技能组 · 中老年技能组 · 通用技能组</div><div class="arch-boxes"><span class="arch-box arch-skill">少儿 4 项</span><span class="arch-box arch-skill">青少年 4 项</span><span class="arch-box arch-skill">中老年 4 项</span><span class="arch-box arch-skill">通用 4 项</span></div></div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer"><div class="layer-title">第三层 · MCP 智慧数据服务（五大标准服务）</div><div class="arch-boxes"><span class="arch-box arch-mcp">馆藏 Catalog</span><span class="arch-box arch-mcp">文化 Culture</span><span class="arch-box arch-mcp">画像 Profile</span><span class="arch-box arch-mcp">阅读 Reading</span><span class="arch-box arch-mcp">活动 Event</span></div></div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer" style="background:var(--paper-deep);"><div class="layer-title" style="color:var(--ink-faint)">数据底座（模拟数据架构，可替换为真实系统）</div><div class="layer-sub">馆藏数据 · 脱敏用户行为 · 文化知识条目 · 地方文献索引 · 活动台账</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 落地价值 -->
+<section id="value" style="background:var(--paper-deep);">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker">落地价值</div>
+      <h2 class="section-title">轻量 · 可落地 · <span class="serif">可复制</span></h2>
+      <p class="section-desc">轻量化、低成本、无真实后端即可演示；落地时"换数据源、不换协议"，平滑接入真实馆藏系统。</p>
+    </div>
+    <div class="value-row">
+      <div class="card reveal"><div class="card-icon c-red">👥</div><h3>对读者</h3><p>从"找书"到"被书找到"——每位读者都有一位懂他/她的专属图书管理员，老人孩子都能用。</p></div>
+      <div class="card reveal"><div class="card-icon c-green">🏛️</div><h3>对图书馆</h3><p>从"人力瓶颈"到"智能倍增"——AI 分担重复咨询与文案工作，释放馆员投入深度服务。</p></div>
+      <div class="card reveal"><div class="card-icon c-gold">🏮</div><h3>对文化</h3><p>从"静态陈列"到"活态传播"——让路遥文学、陕北非遗、红色文化被新一代读懂、传承。</p></div>
+      <div class="card reveal"><div class="card-icon c-ink">🚀</div><h3>对推广</h3><p>架构天然可复制——任一地区图书馆只需替换本地文化知识库，即可快速复刻同类系统。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="logo-line"><span class="serif">榆小图</span> · 榆林图书馆 AI 智慧服务创新系统</div>
+  <div class="slogan">让陕北文化被每个年龄读懂 · 让每一本书找到它的读者</div>
+  <div class="line"></div>
+  <div class="slogan" style="letter-spacing:1px;">AI Agent × Skills 技能库 × MCP 数据服务 · 本地化文化知识库 · 全人群覆盖</div>
+</footer>
+
+<script>
+/* ================= 工具 ================= */
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function render(s) {
+  return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+}
+// 富文本渲染：机器人消息（可信 HTML）+ 换行 + **加粗**
+function renderRich(s) {
+  return s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+}
+
+/* 语音播报（浏览器内置 TTS，完全离线，零计费） */
+let voiceOn = false;
+function toggleVoice(){ voiceOn = $('#voiceToggle').checked; }
+function speak(html) {
+  try {
+    const text = html.replace(/<[^>]+>/g,'').replace(/\*\*/g,'').replace(/[#•🔊🎵🥁💃⭐🏮]/g,'').replace(/\s+/g,' ').trim();
+    if (!text) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = 0.95;
+    const vs = speechSynthesis.getVoices();
+    const v = vs.find(v=>/zh[_-]?CN|cmn/i.test(v.lang)) || vs.find(v=>/zh|cmn/i.test(v.lang));
+    if (v) u.voice = v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch(e) {}
+}
+if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
+
+/* ================= 馆藏数据（内嵌，源自 catalog_sample.json） ================= */
+const CATALOG = [
+  { title:'平凡的世界（全三册）', author:'路遥', category:'文学 / 当代小说', tags:['路遥','奋斗','陕北','现实题材'], location:'二楼文学区 A-03 架', suitable:'14+', large:true, status:'在馆' },
+  { title:'人生', author:'路遥', category:'文学 / 中篇小说', tags:['路遥','抉择','陕北青年','理想'], location:'二楼文学区 A-03 架', suitable:'14+', large:true, status:'在馆' },
+  { title:'路遥传', author:'厚夫', category:'传记 / 文学', tags:['路遥','传记','作家','清涧'], location:'三楼人物传记区 B-01 架', suitable:'12+', large:false, status:'在馆' },
+  { title:'陕北民歌精选', author:'榆林市文化馆 编', category:'艺术 / 民间音乐', tags:['信天游','陕北民歌','非遗','兰花花'], location:'二楼地方文献区 C-05 架', suitable:'全年龄', large:false, status:'在馆' },
+  { title:'陕北剪纸艺术', author:'绥德县文化馆 编', category:'艺术 / 民间工艺', tags:['绥德剪纸','非遗','民间工艺'], location:'二楼地方文献区 C-06 架', suitable:'全年龄', large:false, status:'在馆' },
+  { title:'陕北说书艺术', author:'榆林市非遗保护中心 编', category:'地方文献 / 非遗', tags:['陕北说书','非遗','曲艺','三弦'], location:'二楼地方文献区 C-07 架', suitable:'全年龄', large:false, status:'在馆' },
+  { title:'转战陕北', author:'中共榆林市委党史研究室 编', category:'地方文献 / 红色文化', tags:['红色文化','转战陕北','小河会议','革命'], location:'三楼红色文献区 D-02 架', suitable:'12+', large:false, status:'在馆' },
+  { title:'榆林市志', author:'榆林市地方志编纂委员会', category:'地方文献 / 方志', tags:['地方志','榆林','文献','历史'], location:'三楼地方文献阅览室', suitable:'16+', large:false, status:'阅览' }
+];
+
+/* ================= 人群 ================= */
+const PERSONAS = {
+  auto:    { label:'智能识别', icon:'✨' },
+  kid:     { label:'少儿', icon:'🧒', cls:'kid-style' },
+  teen:    { label:'青少年', icon:'📚', cls:'' },
+  elder:   { label:'中老年', icon:'👵', cls:'lg' },
+  citizen: { label:'普通市民', icon:'🏙️', cls:'' }
+};
+let persona = 'auto';
+
+function detectPersona(text) {
+  if (/(老人|老年|大妈|大爷|爷爷|奶奶|看不清|大字|退休|办证|借书证|花眼|看不清字)/.test(text)) return 'elder';
+  if (/(小朋友|孩子|儿童|宝宝|绘本|睡前|小学生|幼儿园|娃娃|小孩)/.test(text)) return 'kid';
+  if (/(中学生|学生|初中|高中|青少年|作文|考试|读后感|素材|学习)/.test(text)) return 'teen';
+  return 'citizen';
+}
+function resolvePersona(text) {
+  return persona === 'auto' ? detectPersona(text) : persona;
+}
+
+/* ================= 意图识别 ================= */
+const INTENTS = [
+  { id:'elder_service', label:'老年极简咨询', kw:['办证','借书证','借书','还书','老人','老年','大字','看不清','咋办','怎么借'] },
+  { id:'kid_story', label:'少儿故事科普', kw:['小朋友','孩子','故事','绘本','睡前','讲个','儿童','宝宝'] },
+  { id:'plan', label:'阅读计划定制', kw:['计划','打卡','每天','周期','安排','读多久'] },
+  { id:'activity', label:'活动策划文案', kw:['读书会','活动','展览','研学','策划','文案','招募','宣传'] },
+  { id:'luyao', label:'路遥作品解析', kw:['路遥','平凡的世界','平凡世界','孙少平','孙少安','高加林','清涧','人生','作品'] },
+  { id:'ich', label:'非遗文化问答', kw:['非遗','说书','剪纸','腰鼓','秧歌','唢呐','道情','石雕','信天游','民歌','兰花花','小曲','民俗','文化'] },
+  { id:'red', label:'红色文化问答', kw:['红色','革命','转战陕北','小河会议','清涧起义','党史','抗战'] },
+  { id:'local', label:'地方文献/名胜', kw:['地方志','镇北台','红石峡','白云山','统万城','古城','文献','历史'] },
+  { id:'poetry', label:'诗词民谣解读', kw:['诗','诗词','古诗','民谣','蓝花花'] },
+  { id:'recommend', label:'智能图书推荐', kw:['推荐','书','看','读','找书','书单','有什么','借本'] },
+  { id:'greet', label:'问候', kw:['你好','您好','嗨','在吗','谢谢','再见','早上好','晚上好'] },
+  { id:'help', label:'能力说明', kw:['帮助','会什么','能干什么','功能','介绍'] }
+];
+
+function scoreIntent(text) {
+  let best = null, bestScore = 0;
+  for (const it of INTENTS) {
+    let s = 0;
+    for (const k of it.kw) if (text.includes(k)) s += k.length;
+    if (s > bestScore) { bestScore = s; best = it; }
+  }
+  return best || INTENTS[INTENTS.length-1];
+}
+
+/* ================= 诊断面板 ================= */
+const DIAG = {
+  recommend:   { intent:'智能图书推荐', skill:'S-GEN-01 智能荐书', mcp:'MCP-Catalog + MCP-Profile' },
+  luyao:       { intent:'路遥作品深度解析', skill:'S-TEEN-03 路遥解析', mcp:'MCP-Culture 文化知识库' },
+  ich:         { intent:'非遗/民俗文化问答', skill:'S-KID-01 / S-ELD-03 文化科普', mcp:'MCP-Culture 文化知识库' },
+  red:         { intent:'红色文化问答', skill:'S-ELD-03 通俗文化讲解', mcp:'MCP-Culture 文化知识库' },
+  local:       { intent:'地方文献/名胜问答', skill:'馆藏通俗化解读', mcp:'MCP-Catalog + MCP-Culture' },
+  plan:        { intent:'阅读计划定制', skill:'S-GEN-02 阅读计划定制', mcp:'MCP-Reading 阅读计划服务' },
+  activity:    { intent:'活动策划文案', skill:'S-GEN-03 活动策划文案', mcp:'MCP-Event 活动事件服务' },
+  elder_service:{ intent:'老年极简咨询', skill:'S-ELD-01/02 极简+大字版', mcp:'MCP-Catalog 馆藏服务' },
+  kid_story:   { intent:'少儿故事科普', skill:'S-KID-02 故事改编', mcp:'MCP-Culture 文化知识库' },
+  poetry:      { intent:'诗词民谣解读', skill:'S-KID-04 诗词解读', mcp:'MCP-Culture 文化知识库' },
+  greet:       { intent:'问候', skill:'—（通用应答）', mcp:'—' },
+  help:        { intent:'能力说明', skill:'—（元信息）', mcp:'—' }
+};
+const PERSONA_CN = { kid:'少儿读者', teen:'青少年读者', elder:'中老年读者', citizen:'普通市民' };
+
+function updateDiag(intentId, personaKey) {
+  const d = DIAG[intentId] || DIAG.help;
+  const set = (i, v) => { $('#val'+i).innerHTML = v; $('#step'+i).classList.add('on'); };
+  set(1, `识别为「${d.intent}」`);
+  set(2, `判定为「${PERSONA_CN[personaKey]}」`);
+  set(3, `<span class="mono">${d.skill}</span>`);
+  set(4, `<span class="mono">${d.mcp}</span>`);
+}
+
+/* ================= 图书推荐卡片 ================= */
+function bookCard(b) {
+  return `<div class="book-card">
+    <div class="bc-top"><span class="bc-tag">${b.category}</span><span class="bc-status ${b.status==='在馆'?'ok':''}">${b.status}</span></div>
+    <div class="bc-title">《${b.title}》</div>
+    <div class="bc-author">${b.author}</div>
+    <div class="bc-meta">📍 ${b.location}${b.large ? ' · 有大字版' : ''}</div>
+    <div class="bc-tags">${b.tags.map(t=>'#'+t).join(' ')}</div>
+  </div>`;
+}
+function recommendFor(pk) {
+  if (pk === 'kid')    return CATALOG.filter(b => b.suitable === '全年龄').slice(0,3);
+  if (pk === 'elder')  return CATALOG.filter(b => b.large || /路遥|民歌|红色/.test(b.tags.join(''))).slice(0,3);
+  if (pk === 'teen')   return CATALOG.filter(b => /路遥/.test(b.tags.join('')) || b.suitable==='14+' || b.suitable==='12+').slice(0,3);
+  return CATALOG.slice(0,3);
+}
+
+/* ================= 回应生成 ================= */
+function respond(intentId, text, pk) {
+  switch (intentId) {
+    case 'greet':
+      return { html: `你好呀，我是**榆小图** 🧭 榆林图书馆专属文化服务智能体。\n\n我可以帮你：\n📚 推荐图书　✍️ 解读路遥　🏮 讲陕北非遗\n🗓️ 定阅读计划　📋 策划活动　👵 老人大字服务\n\n试试问我一句吧～` };
+    case 'help':
+      return { html: `我是**「榆小图」**，知识范围严格限定六大领域：\n\n① 榆林馆藏　② 路遥文化　③ 陕北民俗\n④ 陕北非遗　⑤ 红色文化　⑥ 地方文献\n\n你只需用一句话告诉我你的需求，我会自动识别意图、判断你的身份，再调度合适的技能为你服务。` };
+
+    case 'recommend': {
+      const books = recommendFor(pk);
+      let head;
+      if (pk==='kid') head = `小朋友，我给你挑了几本有趣的**绘本和民间故事书**，图文并茂，特别好读！📖`;
+      else if (pk==='elder') head = `**给您挑了几本合适的好书**（都有**大字版**，看得清、读得懂）：`;
+      else if (pk==='teen') head = `给你推荐这几本，都是我馆的"镇馆之宝"，尤其**路遥作品**值得精读：`;
+      else head = `根据您的需求，为您精选了这几本馆藏：`;
+      const cards = books.map(bookCard).join('');
+      return { html: head + '\n' + cards + `\n💡 想更精准？告诉我"我是中学生"或"给老人看"，我按人群再筛一遍。` };
+    }
+
+    case 'luyao': {
+      if (pk==='kid') return { html: `讲给你听 🐑\n\n很久以前，黄土高原上有个放羊娃，天天把羊赶到山坡上，自己抱着本书看。别的娃娃笑他："放羊还看书？"\n\n他嘿嘿一笑："**放羊能让我不饿肚子，看书能让我知道山外面的世界**。"\n\n后来，这个爱看书的放羊娃走出了大山——他就是咱**清涧走出来的大作家路遥**！\n\n这个故事告诉我们：**再苦的日子，也要读书！**` };
+      if (pk==='elder') return { html: `**路遥**（1949—1992），是咱**榆林清涧人**。\n\n他写的《平凡的世界》《人生》，讲的全是咱陕北人的日子——种地、打工、拉关系、过日子，写得实在、写得暖心。\n\n馆里有他的书，还有**大字版**，在**二楼文学区 A-03 架**。您想看哪一本，我给您语音导引。`, voice:true };
+      return { html: `**路遥**（1949—1992），榆林**清涧县**人，当代著名作家，代表作《平凡的世界》《人生》。\n\n他"像牛一样劳动，像土地一样奉献"，用生命写作，深刻影响了几代中国青年。\n\n📚 馆藏可借：《平凡的世界》《人生》《路遥传》\n\n💡 想让我**深度解析《平凡的世界》的人物与主题**，还是给你一份**作文素材**？` };
+    }
+
+    case 'ich': {
+      if (text.includes('说书')) return { html: `**陕北说书**是咱陕北特有的曲艺，**国家级非物质文化遗产**。\n\n说书人怀抱**三弦**，有说有唱，经典开场——"怀抱三弦定好音，众位乡亲听我明"。它就像陕北的"有声故事书"，把英雄传奇、家长里短都唱给乡亲听。\n\n💡 本周六下午三点，图书馆一楼报告厅有"陕北说书"专场，**免费**入场！` };
+      if (text.includes('剪纸')) return { html: `**绥德剪纸**是国家级非遗，用一把剪刀在红纸上"变"出万物。\n\n陕北婆姨剪纸不用画稿，心里想啥剪啥——**抓髻娃娃、蛇盘兔、窗花、喜花**……剪的是日子，贴的是期盼。馆内有《陕北剪纸艺术》，在二楼地方文献区 C-06 架。` };
+      if (text.includes('腰鼓')) return { html: `**横山老腰鼓**，国家级非遗，动作粗犷豪放，**"打起来黄土飞扬、气势震天"**。\n\n逢年过节、重大庆典，陕北人都要"打腰鼓、扭秧歌"，红火得很。想了解它的历史由来吗？` };
+      if (text.includes('民歌') || text.includes('信天游') || text.includes('兰花花')) return { html: `这是咱陕北的宝贝！\n\n🎵 **信天游**：陕北民歌的典型，歌词质朴、曲调高亢，《兰花花》就是代表作。\n💃 **陕北秧歌**：扭起来红火热闹，是陕北人的"广场舞"。\n\n馆内有《陕北民歌精选》，在二楼地方文献区。` };
+      return { html: `榆林的"文化家底"很厚，我慢慢讲给你听：\n\n🏮 **陕北非遗**：陕北说书、榆林小曲、绥德剪纸、绥德石雕、横山老腰鼓、子洲唢呐、陕北道情……\n🏛️ **名胜**：镇北台（长城第一台）、红石峡、白云山、统万城遗址、榆林古城。\n\n你对哪一样最感兴趣？点个名，我给你讲透。` };
+    }
+
+    case 'red': return { html: `**榆林是革命老区**，红色记忆深厚：\n\n⭐ **清涧起义**：1927 年发生在清涧，是陕北武装斗争的重要事件。\n⭐ **小河会议**：1947 年中共中央转战陕北期间，在靖边小河村召开的重要会议。\n\n馆内有《转战陕北》，在三楼红色文献区 D-02 架，可借阅。想听具体哪段历史？` };
+
+    case 'local': {
+      if (text.includes('镇北台')) return { html: `**镇北台**，有"**万里长城第一台**"之称，位于榆林城北。\n\n它是明代长城沿线上最大的军事瞭望台之一，与山海关、嘉峪关并称长城三大奇观。馆内地方志有详细记载，可在三楼地方文献阅览室查阅。` };
+      if (text.includes('统万城')) return { html: `**统万城遗址**，是十六国时期**大夏国都城**，赫连勃勃所建，在今靖边县。\n\n它是中国历史上"以白土筑城"的著名都城，被称为"沙漠里的匈奴故都"，见证了一段恢弘的边塞历史。` };
+      return { html: `榆林古迹众多，有"**南塔北台中古城，六楼骑街天下名**"的说法。\n\n📍 **镇北台**：万里长城第一台\n📍 **红石峡**：摩崖石刻艺术宝库\n📍 **统万城**：大夏国故都\n\n馆内地方志、地方文献可查阅更多，需要我帮你定位吗？` };
+    }
+
+    case 'poetry': return { html: `给你讲一首咱陕北的"诗"——信天游《蓝花花》里唱：\n\n"青线线那个蓝线线，蓝个英英的采……"\n\n画面感一下就来了：蓝得发亮的线、陕北的山梁、姑娘的心事。陕北民歌不靠华丽辞藻，靠的是**真情感、真生活**。要我继续讲下一句吗？` };
+
+    case 'plan': return { html: `好，我给你定制一份**"路遥专题 30 天阅读计划"** 📖\n\n**第 1–7 天**：读《人生》，每天 2 章 + 1 句金句摘抄。\n**第 8–21 天**：读《平凡的世界》第一部，每天 3 章，标出孙少平的成长线。\n**第 22–30 天**：读第二、三部，写一篇读后感，参加读书会分享。\n\n我会每天提醒你打卡，坚持 30 天，送你一枚"路遥阅读勋章" 🏅\n\n👉 想用**可视化打卡计划**？滚动到下方"阅读计划生成器"，点一下主题就能生成勾选清单！` };
+
+    case 'activity': return { html: `我给你拟一份活动策划 📋\n\n**【活动主题】**"像土地一样奉献——路遥作品读书会"\n\n**【招募文案】**\n黄土高原上，有一种精神叫"平凡而不平庸"。这个周六，我们邀你共读路遥，聊聊《人生》里的抉择，听听《平凡的世界》里的奋斗。\n\n**【环节设计】**\n① 暖场：陕北民歌开场　② 共读：路遥金句接力朗读\n③ 讨论：如果你是高加林，你会怎么选？　④ 分享：每个人心中的"平凡世界"\n\n需要我帮你改成"展览"或"研学"文案吗？` };
+
+    case 'elder_service': {
+      return { html: `**【如何办借书证】**　（大字版）\n\n**第一步**：带好您的**身份证**。\n\n**第二步**：到**一楼服务台**。\n\n**第三步**：说一声"我要办证"，工作人员帮您办。\n\n**全程免费**，办好就能借书。`, voice:true };
+    }
+
+    case 'kid_story': {
+      return { html: `来啦来啦！给你讲一个陕北的小故事 🐑\n\n很久以前，黄土高原上有个放羊娃，他天天把羊赶到山坡上，自己抱着本书看。别的娃娃笑他："放羊还看书？"\n\n他嘿嘿一笑："**放羊能让我不饿肚子，看书能让我知道山外面的世界**。"\n\n后来，这个爱看书的放羊娃走出了大山——他，就是咱清涧走出来的大作家**路遥**。\n\n这个故事告诉我们：**再苦的日子，也要读书！** 还想听吗？` };
+    }
+
+    default:
+      return { html: `我是**「榆小图」**，榆林图书馆的专属文化服务智能体 🧭\n\n你可以试试问我：\n📚 "推荐一本讲路遥的书"\n🏮 "什么是绥德剪纸"\n🗓️ "帮我定个阅读计划"\n\n或者直接说出你的需求～` };
+  }
+}
+
+/* ================= 聊天逻辑 ================= */
+const chatBody = $('#chatBody');
+
+function addMsg(text, who, isHtml, extra) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + who;
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble' + (extra && extra.cls ? ' ' + extra.cls : '');
+  if (isHtml) bubble.innerHTML = renderRich(text);
+  else bubble.textContent = text;
+  wrap.appendChild(bubble);
+  if (extra && extra.voice) {
+    const vb = document.createElement('button');
+    vb.className = 'voice-btn'; vb.textContent = '🔊 点击语音播报';
+    vb.onclick = () => speak(bubble.innerText);
+    wrap.appendChild(vb);
+  }
+  chatBody.appendChild(wrap);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  return bubble;
+}
+
+function typing() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg bot'; wrap.id = 'typingWrap';
+  wrap.innerHTML = '<div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
+  chatBody.appendChild(wrap); chatBody.scrollTop = chatBody.scrollHeight;
+}
+function removeTyping(){ const t = $('#typingWrap'); if (t) t.remove(); }
+
+function botReply(text) {
+  typing();
+  const intent = scoreIntent(text);
+  const pk = resolvePersona(text);
+  const r = respond(intent.id, text, pk);
+  const cls = PERSONAS[pk] ? PERSONAS[pk].cls : '';
+  const doVoice = (pk === 'elder' && voiceOn) || (pk === 'elder' && r.voice && voiceOn);
+  setTimeout(() => {
+    removeTyping();
+    updateDiag(intent.id, pk);
+    addMsg(r.html, 'bot', true, { cls, voice: (pk==='elder' || r.voice) });
+    if (doVoice) speak(r.html);
+  }, 650 + Math.random() * 500);
+}
+
+function send() {
+  const input = $('#chatInput');
+  const v = input.value.trim();
+  if (!v) return;
+  addMsg(v, 'user', false);
+  input.value = '';
+  botReply(v);
+}
+function ask(t) { addMsg(t, 'user', false); botReply(t); }
+$('#chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+function setPersona(p) {
+  persona = p;
+  document.querySelectorAll('.p-chip').forEach(c => c.classList.toggle('active', c.dataset.p === p));
+  addMsg(`已切换到「${PERSONAS[p].label}」服务模式，我会用对应的方式为你服务。`, 'bot', true, { cls: PERSONAS[p] ? PERSONAS[p].cls : '' });
+}
+
+/* ================= 阅读计划生成器 ================= */
+const PLANS = {
+  luyao: { title:'路遥文学专题 · 30 天阅读计划', desc:'读懂"平凡世界"里的奋斗，从清涧少年到人民作家。', weeks:[
+    { title:'第 1 周 · 走进路遥', items:['读《路遥传》前 3 章，了解他的清涧岁月','摘抄 3 句路遥金句并写下感悟','听一首陕北民歌《兰花花》'] },
+    { title:'第 2 周 · 精读《人生》', items:['通读《人生》，梳理高加林的抉择线','思考：理想与现实冲突时，你会怎么选？','写一段 200 字人物短评'] },
+    { title:'第 3 周 · 精读《平凡的世界》（上）', items:['读第一部，标注孙少安、孙少平的成长节点','绘制"双水村人物关系图"','积累 5 个可用的写作素材'] },
+    { title:'第 4 周 · 精读《平凡的世界》（下）+ 产出', items:['读第二、三部，体会"平凡而不平庸"的主题','完成一篇 800 字读后感','参加读书会，做一次 3 分钟分享'] }
+  ]},
+  ich: { title:'陕北非遗文化 · 30 天认识计划', desc:'用一个月，认识非遗里的陕北。', weeks:[
+    { title:'第 1 周 · 听一听', items:['了解陕北说书的历史与流派','学唱一段《兰花花》','听一段陕北道情'] },
+    { title:'第 2 周 · 看一看', items:['欣赏绥德剪纸的代表图案','了解横山老腰鼓的打法','认识榆林小曲的腔调'] },
+    { title:'第 3 周 · 试一试', items:['动手剪一幅简单窗花','学一个腰鼓基本动作','用一句话介绍一种非遗'] },
+    { title:'第 4 周 · 讲一讲', items:['给家人讲一个非遗故事','整理一份"我的非遗小档案"','参观一次馆内非遗展'] }
+  ]},
+  red: { title:'红色记忆 · 30 天追寻计划', desc:'沿着革命足迹，读懂榆林的红色基因。', weeks:[
+    { title:'第 1 周 · 清涧起义', items:['了解清涧起义的经过与意义','读《转战陕北》相关章节','记下 3 个关键人物'] },
+    { title:'第 2 周 · 转战陕北', items:['了解中共中央转战陕北的路线','重点学习小河会议','绘制一张简单路线图'] },
+    { title:'第 3 周 · 红色人物', items:['认识一位榆林籍革命先辈','摘录一段让你感动的话','写一段 100 字感悟'] },
+    { title:'第 4 周 · 传承', items:['整理一份"榆林红色记忆"笔记','向家人讲述一段历史','写一篇主题征文'] }
+  ]},
+  family: { title:'亲子共读 · 21 天陪伴计划', desc:'每天 15 分钟，陪孩子读一个陕北故事。', weeks:[
+    { title:'第 1 周 · 故事启蒙', items:['共读陕北民间故事（每天 1 个）','让孩子复述故事','画一幅故事插画'] },
+    { title:'第 2 周 · 文化体验', items:['认识窑洞、剪纸、腰鼓','一起剪一幅窗花','学一句陕北童谣'] },
+    { title:'第 3 周 · 小小讲解员', items:['让孩子讲一个非遗故事','录制 1 分钟小视频','颁发"文化小达人"勋章'] }
+  ]}
+};
+let curPlanKey = 'luyao';
+
+function genPlan(key) {
+  curPlanKey = key;
+  const p = PLANS[key];
+  $('#planTitle').textContent = p.title;
+  $('#planDesc').textContent = p.desc;
+  const body = $('#planBody');
+  let html = '';
+  p.weeks.forEach((w, wi) => {
+    html += `<div class="week-block"><div class="week-title">${w.title}</div>`;
+    w.items.forEach((it, ii) => {
+      html += `<label class="plan-item" data-k="${key}" data-w="${wi}" data-i="${ii}"><input type="checkbox" onchange="updatePlan()"><span>${it}</span></label>`;
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+  restorePlan();
+}
+
+function updatePlan() {
+  const items = document.querySelectorAll('#planBody .plan-item');
+  let done = 0;
+  items.forEach(it => { if (it.querySelector('input').checked) { done++; it.classList.add('done'); } else it.classList.remove('done'); });
+  const pct = items.length ? Math.round(done / items.length * 100) : 0;
+  $('#planProgress').style.width = pct + '%';
+  $('#planPct').textContent = '已完成 ' + pct + '%';
+  savePlan();
+}
+function savePlan() {
+  const state = {};
+  document.querySelectorAll('#planBody .plan-item').forEach(it => {
+    state[it.dataset.w + '-' + it.dataset.i] = it.querySelector('input').checked;
+  });
+  try { localStorage.setItem('yulin_plan_' + curPlanKey, JSON.stringify(state)); } catch(e){}
+}
+function restorePlan() {
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem('yulin_plan_' + curPlanKey) || '{}'); } catch(e){}
+  document.querySelectorAll('#planBody .plan-item').forEach(it => {
+    if (state[it.dataset.w + '-' + it.dataset.i]) it.querySelector('input').checked = true;
+  });
+  updatePlan();
+}
+
+/* ================= 文化科普专栏 ================= */
+const CULTURE_POOL = [
+  { tag:'每日一非遗', cls:'c-red', title:'绥德剪纸', body:'陕北婆姨一把剪刀、一张红纸，不画稿也能"变"出万物——抓髻娃娃、蛇盘兔、窗花喜花，剪的是日子，贴的是期盼。', from:'国家级非物质文化遗产' },
+  { tag:'路遥金句台历', cls:'c-gold', title:'"像土地一样奉献"', body:'路遥说："像牛一样劳动，像土地一样奉献。"这既是他的写作信条，也是他对每一个奋斗者的期许。', from:'路遥 · 榆林清涧人' },
+  { tag:'红色记忆', cls:'c-red', title:'小河会议', body:'1947 年，中共中央转战陕北期间，在靖边小河村召开重要会议，为解放战争战略反攻作出关键部署。', from:'榆林 · 红色文化' },
+  { tag:'陕北民俗', cls:'c-green', title:'信天游', body:'"青线线那个蓝线线……"信天游是陕北人"站在山峁上唱出来的心里话"，质朴、高亢、有真情。', from:'陕北民歌' },
+  { tag:'非遗曲艺', cls:'c-red', title:'陕北说书', body:'怀抱三弦，有说有唱——"怀抱三弦定好音，众位乡亲听我明"。陕北说书是黄土高原上的"有声故事书"。', from:'国家级非物质文化遗产' },
+  { tag:'名胜古迹', cls:'c-gold', title:'镇北台', body:'有"万里长城第一台"之称，是明代长城沿线最大的军事瞭望台之一，与山海关、嘉峪关并称长城三大奇观。', from:'榆林城北' },
+  { tag:'非遗技艺', cls:'c-green', title:'横山老腰鼓', body:'动作粗犷豪放，"打起来黄土飞扬、气势震天"，是陕北人逢年过节的"精神图腾"。', from:'国家级非物质文化遗产' },
+  { tag:'地方文献', cls:'c-ink', title:'统万城遗址', body:'十六国大夏国都城，赫连勃勃以白土筑城，被称为"沙漠里的匈奴故都"，见证边塞恢弘历史。', from:'靖边县 · 地方志' }
+];
+let cultureIdx = 0;
+function renderCulture(shuffle) {
+  const grid = $('#cultureGrid');
+  let pool = CULTURE_POOL;
+  if (shuffle) { cultureIdx = (cultureIdx + 4) % pool.length; }
+  const items = [];
+  for (let i = 0; i < 4; i++) items.push(pool[(cultureIdx + i) % pool.length]);
+  grid.innerHTML = items.map(c => `<div class="culture-card reveal on"><span class="cc-tag ${c.cls}">${c.tag}</span><div class="cc-title">${c.title}</div><div class="cc-body">${c.body}</div><div class="cc-from">—— ${c.from}</div></div>`).join('');
+}
+
+/* ================= 页面初始化 ================= */
+window.addEventListener('scroll', () => $('#nav').classList.toggle('scrolled', window.scrollY > 10));
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); }), { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+window.addEventListener('DOMContentLoaded', () => {
+  addMsg('你好呀，我是**榆小图** 🧭 榆林图书馆专属文化服务智能体。\n\n试着点下方快捷提问，或切换右上角"服务人群"，看看同一个问题如何**千人千面**。', 'bot', true, {});
+  genPlan('luyao');
+  renderCulture(false);
+});
+</script>
+</body>
+</html>
